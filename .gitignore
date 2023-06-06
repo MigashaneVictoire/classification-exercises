@@ -4,3 +4,4 @@ util.py
 .ipynb_checkpoints/
 __pycache__
 *.csv
+*.xlsx
