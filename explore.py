@@ -213,4 +213,99 @@ def iris_multivariate_explore():
         plt.title(f"{col[0].upper()} vs {col[1].upper()}")
         plt.show()
 
-          
+        
+def melted_numeric_plots():
+    # get training data
+    iris = prepare.prep_iris()
+    train, validate, test = prepare.split_data_(df=iris, stratify_col="species", random_state=95)
+    
+    melted_train = train[train.columns[1:-2]].melt(id_vars="species")
+
+    sns.stripplot(x=melted_train.variable, y=melted_train.value, hue=melted_train.species)
+    plt.ylabel("Friquency")
+    plt.xlabel("Measurements")
+    plt.show()
+    
+    sns.boxplot(x=melted_train.variable, y=melted_train.value, hue=melted_train.species)
+    plt.ylabel("Friquency")
+    plt.xlabel("Measurements")
+    plt.show()
+    
+  
+def sepal_area_test():
+    # get training data
+    iris = prepare.prep_iris()
+    train, validate, test = prepare.split_data_(df=iris, stratify_col="species", random_state=95)
+
+    print("- Null-Hyp: The sepal area is signficantly different in virginica compared to setosa?")
+    print("- Alt-Hyp: The sepal area is not signficantly different in virginica compared to setosa?\n")
+
+    # get the erea of the species sepal and add it to each of the data frames
+    train["sepal_area"] = train.sepal_width * train.sepal_length
+
+    # set variable data
+    virginica = train[train.species == "virginica"]
+    setosa = train[train.species == "setosa"]
+
+    # get visuals and discriptive statistics
+
+    # get mean and standar deviation
+    virginica_mean, virginica_std = virginica.sepal_area.mean(), virginica.sepal_area.std()
+    setosa_mean, setosa_std = setosa.sepal_area.mean(), setosa.sepal_area.std()
+
+    # generate distributions
+    virginica_dist = stats.norm(virginica_mean,virginica_std)
+    setosa_dist = stats.norm(setosa_mean, setosa_std)
+
+    # generate random variables
+    virginica_random = virginica_dist.rvs(100_000)
+    setosa_random = setosa_dist.rvs(100_000)
+
+    # descriptive stats
+    print("Virginica sepal area number of observations:", len(virginica.sepal_area))
+    print("Virginica sepal area variance:",virginica.sepal_area.var())
+
+    # create sub-plots
+    fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    axs[0].hist(virginica_random, bins=20, alpha=0.5, color='blue', label='Virginica')
+    axs[0].set_title(f'Virginica sepal area', fontsize=12)
+    axs[0].set_xlabel('Distribution', fontsize=10)
+    axs[0].set_ylabel('Frequency', fontsize=10)
+    axs[0].tick_params(axis='both', which='major', labelsize=8)
+    axs[0].grid(True, linestyle='--', linewidth=0.5)
+    axs[0].legend()
+
+    # descriptive stats
+    print("\nSetosa sepal area number of observations:", len(setosa.sepal_area))
+    print("Setosa sepal area variance:",setosa.sepal_area.var())
+
+    axs[1].hist(setosa_random, bins=20, alpha=0.5, color='green', label='Setosa')
+    axs[1].set_title(f'Setosa sepal area', fontsize=12)
+    axs[1].set_xlabel('Distribution', fontsize=10)
+    axs[1].set_ylabel('Frequency', fontsize=10)
+    axs[1].tick_params(axis='both', which='major', labelsize=8)
+    axs[1].grid(True, linestyle='--', linewidth=0.5)
+    axs[1].legend()
+
+    plt.tight_layout()
+    plt.show()
+
+    # confidence level
+    alpha = 0.05
+
+    # test stats for sepal area
+    t_stat, p_value = stats.levene(virginica.sepal_area, setosa.sepal_area)
+
+    print("levene of sepal_area p-value:", p_value)
+
+    # check variance equality
+    variance_status = check_variance_equality(p_value)
+    print(variance_status, "variance")
+
+    if variance_status == "equal":
+        t_stat, p_value = stats.ttest_ind(virginica.sepal_area, setosa.sepal_area)
+    else:
+        t_stat, p_value = stats.mannwhitneyu(virginica.sepal_area, setosa.sepal_area)
+
+    # ckec final p-value
+    print(check_null_with_stats(t_stat,p_value))
