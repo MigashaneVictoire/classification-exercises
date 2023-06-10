@@ -79,8 +79,19 @@ def iris_bivarial_explore():
         plt.figure(figsize=(5,3))
         sns.barplot(x=train[col[0]], y=train[col[1]])
         plt.title(f"{col[0].upper()} vs {col[1].upper()}")
-        plt.show()        
+        plt.show()
         
+        plt.figure(figsize=(5,3))
+        sns.boxplot(x=train[col[0]], y=train[col[1]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+
+
+        plt.figure(figsize=(5,3))
+        sns.violinplot(x=train[col[0]], y=train[col[1]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+
 
 # check if the variance are equal from the levene test
 def check_variance_equality(p_value, alpha=0.05):
@@ -179,5 +190,27 @@ def bivarial_stat_test():
 
     
 
+# Visualize two numeric variables of the species. Hint: sns.relplot with hue or col
+
+def iris_multivariate_explore():
+    
+    # get training data
+    iris = prepare.prep_iris()
+    train, validate, test = prepare.split_data_(df=iris, stratify_col="species", random_state=95)
+    
+    # get combination of all columns paired with one other column
+    columns = train.columns[1:-3]
+    target = "species"
+    combinations = itertools.combinations(columns, 2)
+    # Visuals
+    for col in combinations:
+        # descriptive statistics
+        print(col[0].upper(), "vs", col[1].upper())
+
+        # first figure
+        plt.figure(figsize=(5,3))
+        sns.relplot(x=train[col[0]], y=train[col[1]], hue=train[target])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
 
           
