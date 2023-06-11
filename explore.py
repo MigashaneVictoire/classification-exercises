@@ -8,6 +8,8 @@ import itertools
 
 import prepare
 
+
+# iris
 def iris_univariate_exploare():
     # get training data
     iris = prepare.prep_iris()
@@ -309,3 +311,116 @@ def sepal_area_test():
 
     # ckec final p-value
     print(check_null_with_stats(t_stat,p_value))
+    
+    
+    
+###########################################################################
+# Titanic
+
+# Univariate test
+def titanic_univariate_exploare():
+    # get training data
+    titanic = prepare.prep_titanic()
+    train, validate, test = prepare.split_data_(df=titanic, stratify_col="survived", random_state=95)
+
+    # separeate discrete from continuous variables
+    numeric_col = []
+    categorical_col = []
+
+    for col in train.columns:
+        if train[col].dtype == "o":
+            categorical_col.appen(col)
+
+        else:
+            if len(train[col].unique()) < 5: #making anything with less than 4 unique values a catergorical value
+                categorical_col.append(col)
+            else:
+                numeric_col.append(col)
+    # for numeric columsn
+    # count all values and normalization of the each column
+    for col in numeric_col:
+        plt.figure(figsize=(5,3))
+        print(col.upper())
+        print(train[col].value_counts(dropna=False).sort_values(ascending=False))
+        print(train[col].value_counts(dropna=False, normalize=True).sort_values(ascending=False))
+        train[col].value_counts(dropna=False).hist()
+        plt.show()
+        train[col].hist(alpha=.5)
+        plt.show()
+
+    # For categorical columns
+    # count all values and normalization of the each column
+    for col in categorical_col:
+        plt.figure(figsize=(5,3))
+        print(col.upper())
+        print(train[col].value_counts(dropna=False).sort_values(ascending=False))
+        print(train[col].value_counts(dropna=False, normalize=True).sort_values(ascending=False))
+        sns.countplot(x=col, data=train)
+        plt.show()
+        
+        
+# bivariate test
+def titanic_bivarial_explore():
+    
+    # get training data
+    titanic = prepare.prep_titanic()
+    train, validate, test = prepare.split_data_(df=titanic, stratify_col="survived", random_state=95)
+    
+    # get combination of all columns paired with the target column
+    columns = train.columns[2:-3]
+    target = "survived"
+    combinations = []
+    for element in columns:
+        combinations.append((target, element))
+    
+    # Visuals
+    for col in combinations:
+        # descriptive statistics
+        print(col[0].upper(), "vs", col[1].upper())
+        print(train[col[1]].describe())
+        print(train[col[1]].value_counts())
+
+        # first figure
+        plt.figure(figsize=(5,3))
+        sns.stripplot(x=train[col[0]], y=train[col[1]], hue=train[col[0]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+
+        # second figure
+        plt.figure(figsize=(5,3))
+        sns.barplot(x=train[col[0]], y=train[col[1]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+        
+        plt.figure(figsize=(5,3))
+        sns.boxplot(x=train[col[0]], y=train[col[1]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+
+
+        plt.figure(figsize=(5,3))
+        sns.violinplot(x=train[col[0]], y=train[col[1]])
+        plt.title(f"{col[0].upper()} vs {col[1].upper()}")
+        plt.show()
+    
+    
+def titanic_multivariate_explore():
+    
+    # get training data
+    titanic = prepare.prep_titanic()
+    train, validate, test = prepare.split_data_(df=titanic, stratify_col="survived", random_state=95)
+    
+    # get combination of all columns paired with one other column
+    columns = train.columns[2:-3]
+    target = "survived"
+    combinations = itertools.combinations(columns, 2)
+    # Visuals
+    for cols in combinations:
+        # descriptive statistics
+        print(cols[0].upper(), "vs", cols[1].upper())
+
+        # first figure
+        plt.figure(figsize=(5,3))
+        sns.stripplot(x=train[cols[0]], y=train[cols[1]], hue=train[target])
+        plt.title(f"{cols[0].upper()} vs {cols[1].upper()}")
+        plt.show()
