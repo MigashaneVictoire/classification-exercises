@@ -424,3 +424,59 @@ def titanic_multivariate_explore():
         sns.stripplot(x=train[cols[0]], y=train[cols[1]], hue=train[target])
         plt.title(f"{cols[0].upper()} vs {cols[1].upper()}")
         plt.show()
+        
+   
+def titanic_melted_numeric_plots():
+    # get training data
+    titanic = prepare.prep_titanic()
+    train, validate, test = prepare.split_data_(df=titanic, stratify_col="survived", random_state=95)
+    
+    # select only original numeric variables and melt them
+    melted_train = train[train.columns[1:-3]].select_dtypes("number").melt(id_vars="survived")
+    
+    sns.stripplot(x=melted_train.variable, y=melted_train.value, hue=melted_train.survived)
+    plt.ylabel("Friquency")
+    plt.xlabel("passanger discription")
+    plt.show()
+    
+    sns.boxplot(x=melted_train.variable, y=melted_train.value, hue=melted_train.survived)
+    plt.ylabel("Friquency")
+    plt.xlabel("Measurements")
+    plt.show()
+    
+    
+def fare_and_age_relationship_test():
+
+    # get training data
+    titanic = prepare.prep_titanic()
+    train, validate, test = prepare.split_data_(df=titanic, stratify_col="survived", random_state=95)
+
+    print("- Null-Hyp: There is no linear relationship between fare and age.")
+    print("- Alt-Hyp: There is is linear relationship between fare and age.\n")
+
+    # plot
+    plt.figure(figsize=(5,3))
+    plt.scatter(x=train.age, y=train.fare)
+    plt.title('age vs fare', fontsize=12)
+    plt.xlabel('age', fontsize=10)
+    plt.ylabel('fare', fontsize=10)
+    plt.tick_params(axis='both', which='major', labelsize=8)
+    plt.grid(True, linestyle='--', linewidth=0.5)
+    plt.tight_layout()
+    plt.show()
+
+    print("I don't see a linear relationship so I will do spearman's r test")
+
+    # confidence level
+    alpha = 0.05
+
+    # test stats for sepal area
+    coef_r, p_value = stats.spearmanr(train.age, train.fare)
+
+    print("p-value:", p_value)
+
+    if p_value < alpha:
+        print("we can reject the null")
+    else:
+        print("we FAIL to reject the null")
+
