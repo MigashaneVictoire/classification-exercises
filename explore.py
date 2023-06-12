@@ -480,3 +480,53 @@ def fare_and_age_relationship_test():
     else:
         print("we FAIL to reject the null")
 
+
+###########################################################################
+# Telco
+
+def telco_univariate_exploare():
+    # get training data
+    telco = prepare.prep_telco()
+    train, validate, test = prepare.split_data_(df=telco, stratify_col="churn", random_state=95)
+
+    # separeate discrete from continuous variables
+    numeric_col = []
+    categorical_col = []
+
+    for col in train.columns:
+        if train[col].dtype == "o":
+            categorical_col.appen(col)
+
+        else:
+            if len(train[col].unique()) < 5: #making anything with less than 4 unique values a catergorical value
+                categorical_col.append(col)
+            else:
+                numeric_col.append(col)
+                
+                
+    # for numeric columsn
+    # count all values and normalization of the each column
+    for col in numeric_col:
+        plt.figure(figsize=(5,3))
+        print(col.upper())
+        print(train[col].value_counts(dropna=False).sort_values(ascending=False))
+        print(train[col].value_counts(dropna=False, normalize=True).sort_values(ascending=False))
+        train[col].value_counts(dropna=False).hist()
+        plt.show()
+        train[col].hist(alpha=.5)
+        plt.show()
+
+        
+    # For categorical columns
+    # count all values and normalization of the each column
+    for col in categorical_col[1:-26]:
+        plt.figure(figsize=(5,3))
+        print(col.upper())
+        print(train[col].value_counts(dropna=False).sort_values(ascending=False))
+        print(train[col].value_counts(dropna=False, normalize=True).sort_values(ascending=False))
+        sns.countplot(x=col, data=train)
+        plt.show()
+
+        
+        
+ 
