@@ -47,7 +47,7 @@ def get_titanic_data():
     """
     titanic_data = pd.read_sql(query, env.get_db_access("titanic_db"))
     
-    return titanic_data, 
+    return titanic_data
 
 
 def get_iris_data():

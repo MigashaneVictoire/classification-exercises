@@ -19,18 +19,9 @@ import env
 
 #  Data preparation
 # -----------------------------------------------------------------
-def internal_data_prep_():
-    return
 
-# return prepared data based on input type
-def prep_data_(df: pd.DataFrame = None, fileName: str = None):
-    if df and fileName:
-        print("Enter dataFrame or file name NOT both...!")
-    elif fileName:
-        df = acquire_.get_existing_csv_file_(fileName=fileName)
-        return internal_data_prep_(df)
-    else:
-        return internal_data_prep_(df)
+
+
 
 # -----------------------------------------------------------------
 # Split the data into train, validate and train
